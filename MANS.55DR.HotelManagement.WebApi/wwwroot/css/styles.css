@@ -1,0 +1,160 @@
+﻿/** {
+    margin: 0;
+    padding:0;
+}*/
+
+* {
+    font-family: 'Times New Roman', Times, serif;
+}
+
+.mt-10 {
+    margin-top: 10px;
+}
+.mb-10 {
+    margin-bottom: 10px;
+}
+#errors {
+    color: red;
+    font-weight: bold;
+}
+
+button {
+    border-radius: 0;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 7px 0;
+    text-align: center;
+}
+
+td {
+    max-width: 300px;
+    text-wrap: wrap;
+}
+
+thead {
+    background-color: lightgray;
+}
+
+tr {
+    border-bottom: 1pt solid black;
+}
+
+    tr:nth-child(2n) {
+        background-color: #e8e9eb;
+    }
+
+    tr:hover {
+        background-color: lightgray;
+    }
+
+form, .form-input {
+    display: flex;
+    flex-direction: column;
+}
+
+.button {
+    display: block;
+    text-align: center;
+    color: black;
+    background-color: #bbd4f0;
+}
+
+    .button:hover {
+        background-color: #8fc2f7;
+        color: antiquewhite;
+        cursor: pointer;
+    }
+
+a.button:link {
+    text-decoration: none;
+}
+
+input[type="submit"], .button {
+    padding: 7px;
+    font-size: 1.25rem;
+    border: 0;
+    border-radius: 0;
+}
+
+    input[type="submit"]:hover {
+        background-color: #dddddd;
+        cursor: pointer;
+    }
+
+.form-input {
+    margin-bottom: 15px;
+}
+
+    .form-input > label {
+        font-weight: bold;
+    }
+
+
+.container {
+    width: 100vw;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+section {
+    width: 70%;
+    margin: 25px 0;
+    padding: 25px;
+    box-shadow: 0 0 10px black;
+    border-radius: 10px;
+}
+
+button {
+    cursor: pointer;
+}
+
+h1 {
+    text-align: center;
+    margin-top: 0;
+}
+
+.logo {
+    font-size: 2rem;
+    text-align: center;
+}
+
+    .logo > a:link {
+        text-decoration: none;
+    }
+
+    .logo > a:hover {
+        cursor: pointer;
+    }
+
+nav > ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+    nav > ul > li {
+        float: left;
+    }
+
+        nav > ul > li a {
+            display: block;
+            padding: 8px;
+            background-color: #dddddd;
+        }
+
+            nav > ul > li a:hover {
+                background-color: #888888;
+                color: aliceblue;
+            }
+
+            nav > ul > li a:link {
+                text-decoration: none;
+            }

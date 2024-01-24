@@ -1,0 +1,3 @@
+﻿const settings = {
+    ApiUrl: "/api"
+}

@@ -1,0 +1,60 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Login</title>
+    <link href="css/styles.css" rel="stylesheet" />
+    <style>
+        section {
+            width: 400px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <a href="/index.html">Hotel Management System</a>
+        </div>
+        <section>
+            <h1>Login</h1>
+            <form id="form">
+                <div class="form-input">
+                    <label for="username">User</label>
+                    <input required name="username" id="username" type="text" value="" />
+                </div>
+
+                <div class="form-input">
+                    <label for="password">Password</label>
+                    <input required name="password" id="password" type="password" value="" />
+                </div>
+
+                <input type="submit" value="Login" />
+                <a class="button mt-10" href="/register.html">Sign Up</a>
+            </form>
+        </section>
+    </div>
+    <script src="js/settings.js"></script>
+    <script src="js/utils.js"></script>
+    <script>
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            const loginResponse = await fetch(`${settings.ApiUrl}/auth/login`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(formToJson(form))
+            });
+
+            if (loginResponse.ok) {
+                window.location.href = "/index.html"
+            } else {
+                alert("Invalid user name or password, try again");
+                const details = await loginResponse.json();
+                console.log(details);
+            }
+        });
+    </script>
+</body>
+</html>

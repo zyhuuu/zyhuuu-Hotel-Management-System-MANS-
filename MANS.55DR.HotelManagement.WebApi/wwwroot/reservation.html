@@ -1,0 +1,148 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Reservation</title>
+    <link href="css/styles.css" rel="stylesheet" />
+    <style>
+        section {
+            width: 400px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <a href="/index.html">Hotel Management System</a>
+        </div>
+        <section>
+            <h1>Reservation</h1>
+            <div id="errors"></div>
+            <form id="form">
+                <input hidden name="id" id="reservation-id" type="number" value="" />
+
+                <div class="form-input">
+                    <label for="start-date">Start Date</label>
+                    <input required name="startDate" id="start-date" type="date" value="" />
+                </div>
+
+                <div class="form-input">
+                    <label for="end-date">End Date</label>
+                    <input required name="endDate" id="end-date" type="date" value="" />
+                </div>
+
+                <div class="form-input">
+                    <label for="total-amount">Total Amount</label>
+                    <input disabled id="total-amount" type="number" value="" />
+                </div>
+
+                <div class="form-input">
+                    <label for="details">Details</label>
+                    <textarea style="max-width: 100%; min-width: 100%" name="details" id="details" value=""></textarea>
+                </div>
+
+                <div class="form-input">
+                    <label for="room-id">Room</label>
+                    <select id="room-id" name="roomId"></select>
+                </div>
+
+                <div class="form-input">
+                    <label for="customer-id">Customer</label>
+                    <select id="customer-id" name="customerId"></select>
+                </div>
+
+                <input type="submit" id="submit" value="Create" />
+            </form>
+        </section>
+    </div>
+    <script src="js/settings.js"></script>
+    <script src="js/utils.js"></script>
+    <script>
+        const submitBtn = document.getElementById("submit");
+
+        const errorsElement = document.getElementById("errors");
+
+        const reservationIdElem = document.getElementById("reservation-id");
+        const startDateElem = document.getElementById("start-date");
+        const endDateElem = document.getElementById("end-date");
+        const totalAmountElem = document.getElementById("total-amount");
+        const detailsElem = document.getElementById("details");
+        const roomIdElem = document.getElementById("room-id");
+        const customerIdElem = document.getElementById("customer-id");
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const reservationId = urlParams.get('id');
+
+            form.addEventListener("submit", async (event) => {
+                event.preventDefault();
+
+                errorsElement.innerText = "";
+                const reservationData = formToJson(form);
+                reservationData.id = (+reservationData.id);
+                const response = await fetch(`${settings.ApiUrl}/reservations/${reservationId ?? ""}`, {
+                    method: reservationId ? "PUT" : "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(reservationData)
+                });
+
+                if (response.ok) {
+                    window.location.href = "/index.html"
+                } else if (response.status == 403) {
+                    alert(`Insufficient permissions!`);
+                } else {
+                    const result = await response.json();
+                    const errors = [];
+                    if (result.message) {
+                        errors.push(result.message)
+                    }
+                    for (var key in result.errors) {
+                        errors.push(...result.errors[key]);
+                    }
+                    errorsElement.innerText = errors.join("\n");
+                }
+            })
+
+            const customers = await fetch(`${settings.ApiUrl}/customers`, {
+                credentials: 'include',
+            }).then(res => res.json());
+            const rooms = await fetch(`${settings.ApiUrl}/Rooms`, {
+                credentials: 'include',
+            }).then(res => res.json());
+
+            fillSelect("customer-id", customers, {
+                valueProperty: "id",
+                getDisplayValue: (customer) => `${customer.firstName} ${customer.lastName}`
+            })
+            fillSelect("room-id", rooms, {
+                valueProperty: "id",
+                getDisplayValue: (room) => room.id
+            })
+
+            if (!reservationId) {
+                return;
+            }
+
+            submitBtn.value = "Edit";
+
+            try {
+                const getReservationResponse = await fetch(`${settings.ApiUrl}/reservations/${reservationId}`, {
+                    credentials: "include"
+                });
+                const reservation = await getReservationResponse.json();
+                reservationIdElem.value = reservation.id;
+                startDateElem.value = reservation.startDate?.substr(0, 10);
+                endDateElem.value = reservation.endDate?.substr(0, 10);
+                totalAmountElem.value = reservation.totalAmount;
+                detailsElem.value = reservation.details;
+                roomIdElem.value = reservation.roomId;
+                customerIdElem.value = reservation.customerId;
+            } catch (error) {
+                console.warn(error)
+            }
+        });
+    </script>
+</body>
+</html>

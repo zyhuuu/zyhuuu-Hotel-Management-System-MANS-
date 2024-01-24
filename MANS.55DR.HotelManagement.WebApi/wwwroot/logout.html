@@ -1,0 +1,6 @@
+﻿<script src="js/settings.js"></script>
+<script>
+    fetch(`${settings.ApiUrl}/auth/logout`).then(res => {
+        window.location.href = "/index.html"
+    });
+</script>

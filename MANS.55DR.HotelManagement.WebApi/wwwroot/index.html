@@ -1,0 +1,388 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <link href="css/styles.css" rel="stylesheet" />
+
+    <style>
+        button {
+            border-style: none;
+            margin-right: 10px;
+            border-radius: 10px;
+        }
+
+            button[data-action="remove"] {
+                background-color: #fa9898;
+            }
+
+                button[data-action="remove"]:hover {
+                    background-color: #fc7979;
+                }
+
+            button[data-action="edit"] {
+                background-color: #b6cafc;
+            }
+
+                button[data-action="edit"]:hover {
+                    background-color: #8eadfa;
+                }
+
+
+            button[data-action="create"] {
+                background-color: #c7fcd9;
+                font-size: 1.12rem;
+                margin-bottom:10px;
+            }
+
+                button[data-action="create"]:hover {
+                    background-color: #99f7b9;
+                }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <a href="/index.html">Hotel Management System</a>
+        </div>
+        <nav>
+            <ul>
+                <li>
+                    <a href="#rooms-section">Rooms</a>
+                </li>
+                <li>
+                    <a href="#customers-section">Customers</a>
+                </li>
+                <li>
+                    <a href="#reservations-section">Reservations</a>
+                </li>
+                <li>
+                    <a href="#users-section">Users</a>
+                </li>
+                <li>
+                    <a href="/logout.html">Logout</a>
+                </li>
+                <li>
+                    <a>
+                        Hello <span id="username"></span>!
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!--<div id="test-table"></div>-->
+        <!--<table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Last name</th>
+                    <th>h3</th>
+                    <th>h4</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>sd</td>
+                    <td>ss</td>
+                </tr>
+                <tr>
+                    <td>sd</td>
+                    <td>sd</td>
+                    <td>sd</td>
+                    <td>ss</td>
+                </tr>
+            </tbody>
+        </table>-->
+        <section id="rooms-section">
+            <h1>Rooms</h1>
+            <button data-action="create">Create</button>
+        </section>
+
+        <section id="customers-section">
+            <h1>Customers</h1>
+            <button data-action="create">Create</button>
+        </section>
+
+        <section id="reservations-section">
+            <h1>Reservations</h1>
+            <button data-action="create">Create</button>
+        </section>
+
+        <section id="users-section" hidden>
+            <h1>Users</h1>
+        </section>
+    </div>
+
+    <script src="js/settings.js"></script>
+    <script src="js/utils.js"></script>
+    <script>
+        const usernameElem = document.getElementById("username");
+        const roomsSectionElem = document.getElementById("rooms-section");
+        const customersSectionElem = document.getElementById("customers-section");
+        const reservationsSectionElem = document.getElementById("reservations-section");
+        const usersSectionElem = document.getElementById("users-section");
+
+        const customerTableColumns = [
+            {
+                displayName: "First Name",
+                sourceProperty: "firstName"
+            },
+            {
+                displayName: "Last Name",
+                sourceProperty: "lastName"
+
+            },
+            {
+                displayName: "Address",
+                sourceProperty: "address"
+            },
+            {
+                displayName: "Phone",
+                sourceProperty: "phone"
+            },
+            {
+                displayName: "Email",
+                sourceProperty: "email"
+            },
+            {
+                displayName: "",
+                getColumnHtmlData: (rowData) => `<button data-action='remove' data-id='${rowData.id}'>Remove</button><button data-action='edit' data-id='${rowData.id}'>Edit</button>`
+            }
+        ]
+
+        const roomTableColumns = [
+            {
+                displayName: "Room Number",
+                sourceProperty: "id"
+            },
+            {
+                displayName: "Price",
+                sourceProperty: "price"
+
+            },
+            {
+                displayName: "Description",
+                sourceProperty: "description"
+            },
+            {
+                displayName: "",
+                getColumnHtmlData: (rowData) => `<button data-action='remove' data-id='${rowData.id}'>Remove</button><button data-action='edit' data-id='${rowData.id}'>Edit</button>`
+            }
+        ]
+
+        const reservationTableColumns = [
+            {
+                displayName: "Start Date",
+                getColumnData: (rowData) => rowData.startDate.substr(0, 10)
+            },
+            {
+                displayName: "End Date",
+                getColumnData: (rowData) => rowData.endDate.substr(0, 10)
+            },
+            {
+                displayName: "Total Amount",
+                sourceProperty: "totalAmount"
+            },
+            {
+                displayName: "Details",
+                sourceProperty: "details"
+            },
+            {
+                displayName: "Room",
+                sourceProperty: "roomId"
+            },
+            {
+                displayName: "Customer",
+                getColumnData: (rowData) => `${rowData.customer.firstName} ${rowData.customer.lastName}`
+            },
+            {
+                displayName: "",
+                getColumnHtmlData: (rowData) => `<button data-action='remove' data-id='${rowData.id}'>Remove</button><button data-action='edit' data-id='${rowData.id}'>Edit</button>`
+            }
+        ]
+
+        const userTableColumns = [
+            {
+                displayName: "Name",
+                sourceProperty: "userName"
+            },
+            {
+                displayName: "Email",
+                sourceProperty: "email"
+            },
+            {
+                displayName: "Is Admin",
+                sourceProperty: "isAdmin"
+            },
+            {
+                displayName: "Is User",
+                sourceProperty: "isUser"
+            },
+            {
+                displayName: "",
+                getColumnHtmlData: (rowData) => {
+                    let htmlData = "";
+
+                    if (!rowData.isAdmin) {
+                        htmlData += `<button data-action='makeAdmin' data-id='${rowData.id}'>Make an Admin</button>`;
+                    }
+                    if (!rowData.isUser) {
+                        htmlData += `<button data-action='makeUser' data-id='${rowData.id}'>Make an User</button>`;
+                    }
+                    htmlData += `<button data-action='remove' data-id='${rowData.id}'>Remove</button>`;
+
+                    return htmlData;
+                }
+            }
+        ]
+
+        roomsSectionElem.addEventListener("click", async (event) => {
+            console.log({ event });
+            if (!event.target.dataset.action) {
+                return;
+            }
+
+            const { id, action } = event.target.dataset;
+
+            if (action == 'remove') {
+                await fetch(`${settings.ApiUrl}/rooms/${id}`, {
+                    method: "DELETE",
+                    credentials: 'include',
+                });
+                window.location.reload();
+            }
+            if (action == 'edit') {
+                window.location = `/room.html?number=${id}`
+            }
+            if (action == 'create') {
+                window.location = `/room.html`
+            }
+            console.log({ id, action })
+
+        });
+        customersSectionElem.addEventListener("click", async (event) => {
+            console.log({ event });
+            if (!event.target.dataset.action) {
+                return;
+            }
+
+            const { id, action } = event.target.dataset;
+
+            if (action == 'remove') {
+                await fetch(`${settings.ApiUrl}/customers/${id}`, {
+                    method: "DELETE",
+                    credentials: 'include',
+                });
+                window.location.reload();
+            }
+            if (action == 'edit') {
+                window.location = `/customer.html?id=${id}`
+            }
+            if (action == 'create') {
+                window.location = `/customer.html`
+            }
+            console.log({ id, action })
+
+        });
+        reservationsSectionElem.addEventListener("click", async (event) => {
+            console.log({ event });
+            if (!event.target.dataset.action) {
+                return;
+            }
+
+            const { id, action } = event.target.dataset;
+
+            if (action == 'remove') {
+                await fetch(`${settings.ApiUrl}/reservations/${id}`, {
+                    method: "DELETE",
+                    credentials: 'include',
+                });
+                window.location.reload();
+            }
+            if (action == 'edit') {
+                window.location = `/reservation.html?id=${id}`
+            }
+            if (action == 'create') {
+                window.location = `/reservation.html`
+            }
+            console.log({ id, action })
+
+        });
+        usersSectionElem.addEventListener("click", async (event) => {
+            console.log({ event });
+            if (!event.target.dataset.action) {
+                return;
+            }
+
+            const { id, action } = event.target.dataset;
+
+            if (action == 'makeAdmin') {
+                await fetch(`${settings.ApiUrl}/users/UpgradeToAdmin/${id}`, {
+                    method: "POST",
+                    credentials: 'include',
+                });
+            }
+            if (action == 'makeUser') {
+                await fetch(`${settings.ApiUrl}/users/UpgradeToUser/${id}`, {
+                    method: "POST",
+                    credentials: 'include',
+                });
+            }
+            if (action == 'remove') {
+                await fetch(`${settings.ApiUrl}/users/${id}`, {
+                    method: "Delete",
+                    credentials: 'include',
+                });
+            }
+            window.location.reload();
+
+            console.log({ id, action })
+        });
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            const meResponse = await fetch(`${settings.ApiUrl}/auth/me`, {
+                credentials: 'include',
+            });
+
+            if (!meResponse.ok) {
+                window.location.href = "/login.html";
+                return;
+            }
+
+            const me = await meResponse.json();
+            usernameElem.innerText = me.name;
+
+            fetch(`${settings.ApiUrl}/customers`, {
+                credentials: 'include',
+            }).then(async res => {
+                const customers = await res.json();
+                createTable("customers-section", customerTableColumns, customers);
+            });
+
+            fetch(`${settings.ApiUrl}/Rooms`, {
+                credentials: 'include',
+            }).then(async res => {
+                const rooms = await res.json();
+                createTable("rooms-section", roomTableColumns, rooms)
+            });
+
+            fetch(`${settings.ApiUrl}/reservations`, {
+                credentials: 'include',
+            }).then(async res => {
+                const reservations = await res.json();
+                createTable("reservations-section", reservationTableColumns, reservations)
+            });
+
+            if (me.isAdmin) {
+                usersSectionElem.hidden = false;
+                fetch(`${settings.ApiUrl}/users`, {
+                    credentials: 'include',
+                }).then(async res => {
+                    const users = await res.json();
+                    createTable("users-section", userTableColumns, users)
+                });
+            }
+        })
+    </script>
+</body>
+</html>

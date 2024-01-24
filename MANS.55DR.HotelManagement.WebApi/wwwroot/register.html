@@ -1,0 +1,77 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Register</title>
+    <link href="css/styles.css" rel="stylesheet" />
+    <style>
+        section {
+            width: 400px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <a href="/index.html">Hotel Management System</a>
+        </div>
+        <section>
+            <h1>Register</h1>
+            <div id="errors"></div>
+            <form id="form">
+                <div class="form-input">
+                    <label for="username">User</label>
+                    <input required name="username" id="username" type="text" value="" />
+                </div>
+
+                <div class="form-input">
+                    <label for="email">E-mail</label>
+                    <input required name="email" id="email" type="email" value="" />
+                </div>
+
+                <div class="form-input">
+                    <label for="password">Password</label>
+                    <input required name="password" id="password" type="password" value="" />
+                </div>
+
+                <div class="form-input">
+                    <label for="confirm-password">Confirm Password</label>
+                    <input required name="confirmPassword" id="confirm-password" type="password" value="" />
+                </div>
+
+                <input type="submit" value="Register" />
+            </form>
+        </section>
+    </div>
+    <script src="js/settings.js"></script>
+    <script src="js/utils.js"></script>
+    <script>
+        const errorsElement = document.getElementById("errors");
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            errorsElement.innerText = "";
+            const registerResponse = await fetch(`${settings.ApiUrl}/auth/register`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(formToJson(form))
+            });
+
+            if (registerResponse.ok) {
+                window.location.href = "/login.html";
+            } else {
+                const result = await registerResponse.json();
+                const errors = [];
+                if (result.message) {
+                    errors.push(result.message)
+                }
+                for (let key in result.errors ?? {}) {
+                    errors.push(...result.errors[key]);
+                }
+                errorsElement.innerText = errors.join("\n");
+            }
+        });
+    </script>
+</body>
+</html>

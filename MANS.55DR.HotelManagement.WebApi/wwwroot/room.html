@@ -1,0 +1,103 @@
+﻿
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Room</title>
+    <link href="css/styles.css" rel="stylesheet" />
+    <style>
+        section {
+            width: 400px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <a href="/index.html">Hotel Management System</a>
+        </div>
+        <section>
+            <h1>Room</h1>
+            <form id="form">
+                <div class="form-input">
+                    <label for="number">Room number</label>
+                    <input name="id" id="number" type="number" value="" />
+                </div>
+
+                <div class="form-input">
+                    <label for="description">Description</label>
+                    <textarea style="max-width: 100%; min-width: 100%" required name="description" id="description" value=""></textarea>
+                </div>
+                <!--<input required name="description" id="description" value="" />-->
+                <div class="form-input">
+                    <label for="price">Price</label>
+                    <input required name="price" id="price" type="number" min="0" value="" />
+                </div>
+
+                <input type="submit" id="submit" value="Create" />
+            </form>
+        </section>
+    </div>
+    <script src="js/settings.js"></script>
+    <script src="js/utils.js"></script>
+    <script>
+        const submitBtn = document.getElementById("submit");
+        const numberElem = document.getElementById("number");
+        const priceElem = document.getElementById("price");
+        const descriptionElem = document.getElementById("description");
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const roomNumber = urlParams.get('number');
+
+            form.addEventListener("submit", async (event) => {
+                event.preventDefault();
+
+                const roomData = formToJson(form);
+                const response = await fetch(`${settings.ApiUrl}/rooms/${roomNumber ?? ""}`, {
+                    method: roomNumber ? "PUT" : "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(roomData)
+                });
+
+                if (response.ok) {
+                    window.location.href = "/index.html"
+                } else {
+                    if (response.status == 409) {//conflict
+                        alert(`Room with number '${roomData.id}' already exists!`);
+                    }
+                    else if (response.status == 403) {
+                        alert(`Insufficient permissions!`);
+                    }
+                    else {
+                        const details = await response.json();
+                        alert(details.message ?? details.error?.message);
+                        console.log(details);
+                    }
+                }
+            })
+
+            if (!roomNumber) {
+                return;
+            }
+
+            numberElem.disabled = "true";
+            submitBtn.value = "Edit"
+
+            try {
+                const getRoomResponse = await fetch(`${settings.ApiUrl}/rooms/${roomNumber}`, {
+                    credentials: "include"
+                });
+                const room = await getRoomResponse.json();
+                numberElem.value = room.id;
+                priceElem.value = room.price;
+                descriptionElem.value = room.description;
+            } catch (error) {
+                console.warn(error)
+            }
+        });
+    </script>
+</body>
+</html>

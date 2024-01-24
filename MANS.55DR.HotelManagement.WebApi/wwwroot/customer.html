@@ -1,0 +1,126 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Customer</title>
+    <link href="css/styles.css" rel="stylesheet" />
+    <style>
+        section {
+            width: 400px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <a href="/index.html">Hotel Management System</a>
+        </div>
+        <section>
+            <h1>Customer</h1>
+            <div id="errors"></div>
+            <form id="form">
+                <input hidden name="id" id="customer-id" type="number" value="" />
+
+                <div class="form-input">
+                    <label for="first-name">First Name</label>
+                    <input required name="firstName" id="first-name" type="text" value="" />
+                </div>
+
+                <div class="form-input">
+                    <label for="last-name">Last Name</label>
+                    <input required name="lastName" id="last-name" type="text" value="" />
+                </div>
+
+                <div class="form-input">
+                    <label for="phone">Phone</label>
+                    <input required name="phone" id="phone" maxlength="15" type="text" value="" />
+                </div>
+
+                <div class="form-input">
+                    <label for="email">Email</label>
+                    <input required name="email" id="email" type="email" value="" />
+                </div>
+
+                <div class="form-input">
+                    <label for="address">Address</label>
+                    <textarea style="max-width: 100%; min-width: 100%" required name="address" id="address" value=""></textarea>
+                </div>
+
+                <input type="submit" id="submit" value="Create" />
+            </form>
+        </section>
+    </div>
+
+    <script src="js/settings.js"></script>
+    <script src="js/utils.js"></script>
+    <script>
+        const submitBtn = document.getElementById("submit");
+
+        const errorsElement = document.getElementById("errors");
+
+        const customerIdElem = document.getElementById("customer-id");
+        const firstNameElem = document.getElementById("first-name");
+        const lastNameElem = document.getElementById("last-name");
+        const phoneElem = document.getElementById("phone");
+        const emailElem = document.getElementById("email");
+        const addressElem = document.getElementById("address");
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const customerId = urlParams.get('id');
+
+            form.addEventListener("submit", async (event) => {
+                event.preventDefault();
+
+                errorsElement.innerText = "";
+                const customerData = formToJson(form);
+                customerData.id = (+customerData.id);
+                const response = await fetch(`${settings.ApiUrl}/customers/${customerId ?? ""}`, {
+                    method: customerId ? "PUT" : "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(customerData)
+                });
+
+                if (response.ok) {
+                    window.location.href = "/index.html"
+                } else if (response.status == 403) {
+                    alert(`Insufficient permissions!`);
+                } else {
+                    const result = await response.json();
+                    const errors = [];
+                    if (result.message) {
+                        errors.push(result.message)
+                    }
+                    for (var key in result.errors) {
+                        errors.push(...result.errors[key]);
+                    }
+                    errorsElement.innerText = errors.join("\n");
+                }
+            })
+
+            if (!customerId) {
+                return;
+            }
+
+            submitBtn.value = "Edit"
+
+            try {
+                const getCustomerResponse = await fetch(`${settings.ApiUrl}/customers/${customerId}`, {
+                    credentials: "include"
+                });
+                const customer = await getCustomerResponse.json();
+                customerIdElem.value = customer.id;
+                firstNameElem.value = customer.firstName;
+                lastNameElem.value = customer.lastName;
+                phoneElem.value = customer.phone;
+                emailElem.value = customer.email;
+                addressElem.value = customer.address;
+            } catch (error) {
+                console.warn(error)
+            }
+        });
+    </script>
+</body>
+</html>
